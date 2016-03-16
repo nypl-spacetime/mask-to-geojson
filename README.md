@@ -34,7 +34,9 @@ maskToGeoJSON.getMaskAndTransform({
 
 As a standalone command-line tool:
 
-`mask-to-geojson 27378`
+```
+mask-to-geojson 27378
+```
 
 ## How!?!?!?
 
@@ -55,7 +57,9 @@ Mapwarper has an API endpoint for GCPs and cropping masks:
 
 Because the mask is in pixel coordinates of the original TIFF file, we need to use [gdaltransform](http://www.gdal.org/gdaltransform.html) to convert the mask to geographic coordinates with the map's GCPs as command line arguments:
 
-`gdaltransform -gcp 3831.7098930481, 1242.09759358287, 40.7745047932, -73.923830011 -gcp 3868.59759358287, 3395.41711229945, 40.7697272423, -73.9278640533 -gcp 2416.14438502671, 3340.0855614973, 40.7719373086, -73.9321985031 -gcp 2416.14438502669, 1214.43181818179, 40.7765847081, -73.9281215454`
+```
+gdaltransform -gcp 3831.7098930481, 1242.09759358287, 40.7745047932, -73.923830011 -gcp 3868.59759358287, 3395.41711229945, 40.7697272423, -73.9278640533 -gcp 2416.14438502671, 3340.0855614973, 40.7719373086, -73.9321985031 -gcp 2416.14438502669, 1214.43181818179, 40.7765847081, -73.9281215454
+```
 
 Now, inputting pixel coordinates `6183 1866` (Astoria Boulevard & 31st Street) yields the output [`40.7697658590603 -73.9178309436292`](http://www.openstreetmap.org/search?query=40.7697658590603%2C%20-73.9178309436292#map=19/40.76977/-73.91783)!
 
