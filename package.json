@@ -1,0 +1,29 @@
+{
+  "name": "mask-to-geojson",
+  "version": "0.0.1",
+  "description": "Converts Mapwarper GML masks to GeoJSON, using gdaltransform and ground control points",
+  "main": "index.js",
+  "bin": {
+    "mask-to-geojson": "cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nypl-spacetime/mask-to-geojson.git"
+  },
+  "scripts": {
+    "test": "standard"
+  },
+  "author": "Bert Spaan",
+  "license": "MIT",
+  "devDependencies": {
+    "standard": "^6.0.8",
+    "tape": "^3.4.0"
+  },
+  "dependencies": {
+    "JSONStream": "^1.0.7",
+    "highland": "^2.5.1",
+    "minimist": "^1.1.1",
+    "request": "^2.69.0",
+    "xml-stream": "^0.4.5"
+  }
+}
