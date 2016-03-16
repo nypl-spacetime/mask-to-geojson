@@ -18,7 +18,11 @@ module.exports.getMask = function (params, callback) {
   var xml = new XmlStream(gmlStream)
   xml.on('error', callback)
 
+  var foundCoordinates = false
+
   xml.on('endElement: gml:coordinates', (item) => {
+    foundCoordinates = true
+
     var maskString = item['$text']
     if (maskString) {
       var match = maskString.match(/(\d*\.?\d*\s*,\s*\d*\.?\d*)/g)
@@ -28,6 +32,12 @@ module.exports.getMask = function (params, callback) {
           .map((c) => c.map(parseFloat))
         callback(null, mask)
       }
+    }
+  })
+
+  xml.on('end', () => {
+    if (!foundCoordinates) {
+      callback(new Error('no coordinates found in mask GML'))
     }
   })
 }
