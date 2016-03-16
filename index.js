@@ -9,7 +9,7 @@ var XmlStream = require('xml-stream')
 module.exports.DEFAULT_MAPWARPER_URL = 'http://maps.nypl.org/'
 
 module.exports.getMask = function (params, callback) {
-  const mapwarperUrl = params.mapwarperUrl
+  const mapwarperUrl = params.mapwarperUrl || this.DEFAULT_MAPWARPER_URL
   const mapId = params.mapId
   const url = `${mapwarperUrl}shared/masks/${mapId}.gml`
 
@@ -33,7 +33,7 @@ module.exports.getMask = function (params, callback) {
 }
 
 module.exports.getGcps = function (params, callback) {
-  const mapwarperUrl = params.mapwarperUrl
+  const mapwarperUrl = params.mapwarperUrl || this.DEFAULT_MAPWARPER_URL
   const mapId = params.mapId
   const url = `${mapwarperUrl}warper/maps/${mapId}/gcps.json`
 
