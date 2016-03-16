@@ -13,12 +13,25 @@ module.exports.getMask = function (params, callback) {
   const mapId = params.mapId
   const url = `${mapwarperUrl}shared/masks/${mapId}.gml`
 
-  var gmlStream = request(url)
-  gmlStream.on('error', callback)
-  var xml = new XmlStream(gmlStream)
-  xml.on('error', callback)
-
   var masks = []
+  var error = false
+
+  var gmlStream = request(url)
+  gmlStream.on('error', (err) => {
+    if (!error) {
+      error = true
+      callback(err)
+    }
+  })
+
+  var xml = new XmlStream(gmlStream)
+
+  xml.on('error', (err) => {
+    if (!error) {
+      error = true
+      callback(err)
+    }
+  })
 
   xml.on('endElement: gml:coordinates', (item) => {
     var maskString = item['$text']
@@ -34,11 +47,13 @@ module.exports.getMask = function (params, callback) {
   })
 
   xml.on('end', () => {
-    if (!masks.length) {
-      callback(new Error('no coordinates found in mask GML'))
-    } else {
-      masks.sort((a, b) => b.length - a.length)
-      callback(null, masks[0])
+    if (!error) {
+      if (!masks.length) {
+        callback(new Error('no coordinates found in mask GML'))
+      } else {
+        masks.sort((a, b) => b.length - a.length)
+        callback(null, masks[0])
+      }
     }
   })
 }
