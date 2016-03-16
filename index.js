@@ -36,7 +36,7 @@ module.exports.getMask = function (params, callback) {
   xml.on('endElement: gml:coordinates', (item) => {
     var maskString = item['$text']
     if (maskString) {
-      var match = maskString.match(/(\d*\.?\d*\s*,\s*\d*\.?\d*)/g)
+      var match = maskString.match(/(-?\d*\.?\d*\s*,\s*-?\d*\.?\d*)/g)
       if (match) {
         var mask = match
           .map((c) => c.split(','))
@@ -52,7 +52,14 @@ module.exports.getMask = function (params, callback) {
         callback(new Error('no coordinates found in mask GML'))
       } else {
         masks.sort((a, b) => b.length - a.length)
-        callback(null, masks[0])
+
+        var mask = masks[0]
+
+        if (mask.length < 4) {
+          callback(new Error('GML mask with less than 4 coordinates encountered'))
+        } else {
+          callback(null, masks[0])
+        }
       }
     }
   })
@@ -69,6 +76,7 @@ module.exports.getGcps = function (params, callback) {
 
   H(gcpStream)
     .errors(callback)
+    .filter((gcp) => Math.abs(gcp.x) > Number.EPSILON && Math.abs(gcp.y) > Number.EPSILON)
     .map((gcp) => [gcp.x, gcp.y, gcp.lat, gcp.lon])
     .toArray((gcps) => {
       callback(null, gcps)
