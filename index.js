@@ -79,7 +79,11 @@ module.exports.getGcps = function (params, callback) {
     .filter((gcp) => Math.abs(gcp.x) > Number.EPSILON && Math.abs(gcp.y) > Number.EPSILON)
     .map((gcp) => [gcp.x, gcp.y, gcp.lat, gcp.lon])
     .toArray((gcps) => {
-      callback(null, gcps)
+      if (gcps.length < 3) {
+        callback(new Error('Map with less than 3 GCPs encountered'))
+      } else {
+        callback(null, gcps)
+      }
     })
 }
 
