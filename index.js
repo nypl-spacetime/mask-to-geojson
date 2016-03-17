@@ -49,14 +49,14 @@ module.exports.getMask = function (params, callback) {
   xml.on('end', () => {
     if (!error) {
       if (!masks.length) {
-        callback(new Error('no coordinates found in mask GML'))
+        callback(new Error(`no coordinates found in mask GML: ${mapId} - see ${url}`))
       } else {
         masks.sort((a, b) => b.length - a.length)
 
         var mask = masks[0]
 
         if (mask.length < 4) {
-          callback(new Error('GML mask with less than 4 coordinates encountered'))
+          callback(new Error(`GML mask with less than 4 coordinates encountered: ${mapId} - see ${url}`))
         } else {
           callback(null, masks[0])
         }
@@ -80,7 +80,7 @@ module.exports.getGcps = function (params, callback) {
     .map((gcp) => [gcp.x, gcp.y, gcp.lat, gcp.lon])
     .toArray((gcps) => {
       if (gcps.length < 3) {
-        callback(new Error('Map with less than 3 GCPs encountered'))
+        callback(new Error(`Map with less than 3 GCPs encountered: ${mapId} - see ${url}`))
       } else {
         callback(null, gcps)
       }
