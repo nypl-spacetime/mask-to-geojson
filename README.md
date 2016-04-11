@@ -1,5 +1,9 @@
 # mask-to-geojson
 
+17777
+12862
+11918
+
 mask-to-geojson converts Mapwarper GML masks to GeoJSON polygons, using [gdaltransform](http://www.gdal.org/gdaltransform.html). Given a map ID, mask-to-geojson reads the map's mask and ground control points (GCPs) from the Mapwarper API and transforms the mask's pixel coordinates to latitude/longitude coordinates.
 
 ![](images/geojson.png)
@@ -64,6 +68,16 @@ gdaltransform -gcp 3831.7098930481, 1242.09759358287, 40.7745047932, -73.9238300
 Now, inputting pixel coordinates `6183 1866` (Astoria Boulevard & 31st Street) yields the output [`40.7697658590603 -73.9178309436292`](http://www.openstreetmap.org/search?query=40.7697658590603%2C%20-73.9178309436292#map=19/40.76977/-73.91783)!
 
 ![](images/photoshop.png)
+
+## Installing GDAL
+
+On MacOS:
+
+    brew install gdal
+
+On Ubuntu:
+
+    sudo apt-get install gdal-bin
 
 ## See also
 
