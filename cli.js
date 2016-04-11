@@ -21,7 +21,7 @@ maskToGeoJSON.getMaskAndTransform({
   mapId: mapId
 }, (err, geojson) => {
   if (err) {
-    console.error(err)
+    console.error(err.message)
   } else {
     if (argv.o) {
       fs.writeFileSync(argv.o, JSON.stringify(geojson))

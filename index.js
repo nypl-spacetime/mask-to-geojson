@@ -94,8 +94,14 @@ module.exports.transform = function (mask, gcps, callback) {
     params = params.concat(gcp)
   })
 
+  var error = false
   var gdal = spawn('gdaltransform', params)
   gdal.stdin.setEncoding('utf-8')
+
+  gdal.on('error', (err) => {
+    error = true
+    callback(new Error('Error spawning gdaltransform - is GDAL installed?'))
+  })
 
   H(gdal.stdout)
     .split()
@@ -104,12 +110,14 @@ module.exports.transform = function (mask, gcps, callback) {
     .map((line) => line.split(' ').slice(0, 2).map(parseFloat))
     .map((latLon) => [latLon[1], latLon[0]])
     .toArray((coordinates) => {
-      callback(null, {
-        type: 'Polygon',
-        coordinates: [
-          coordinates
-        ]
-      })
+      if (!error) {
+        callback(null, {
+          type: 'Polygon',
+          coordinates: [
+            coordinates
+          ]
+        })
+      }
     })
 
   mask.forEach((coordinate) => {
