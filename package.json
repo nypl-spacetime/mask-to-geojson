@@ -1,6 +1,6 @@
 {
   "name": "mask-to-geojson",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "description": "Converts Mapwarper GML masks to GeoJSON, using gdaltransform and ground control points",
   "main": "index.js",
   "bin": {
