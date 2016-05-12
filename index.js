@@ -20,7 +20,7 @@ module.exports.getMask = function (params, callback) {
   gmlStream.on('error', (err) => {
     if (!error) {
       error = true
-      callback(err)
+      callback(`error reading mask from Map Warper API: '${err.message}' - see ${url}`)
     }
   })
 
@@ -29,7 +29,7 @@ module.exports.getMask = function (params, callback) {
   xml.on('error', (err) => {
     if (!error) {
       error = true
-      callback(err)
+      callback(`error reading mask XML file: '${err.message}' - see ${url}`)
     }
   })
 
