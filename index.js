@@ -87,15 +87,40 @@ module.exports.getGcps = function (params, callback) {
     })
 }
 
-module.exports.transform = function (mask, gcps, callback) {
-  var params = []
+var transformArgs = {
+  auto: '',
+  p1: '-order 1',
+  p2: '-order 2',
+  p3: '-order 3',
+  tps: '-tps'
+}
+
+module.exports.transform = function (mask, gcps, params, callback) {
+  if (!params) {
+    params = {}
+  }
+
+  var gdalArgs = []
   gcps.forEach((gcp) => {
-    params.push('-gcp')
-    params = params.concat(gcp)
+    gdalArgs.push('-gcp')
+    gdalArgs = gdalArgs.concat(gcp)
   })
 
+  if (params.transform) {
+    var transformArg = transformArgs[params.transform]
+
+    if (transformArg === undefined) {
+      callback(new Error('Transform option is invalid: ' + params.transform))
+      return
+    }
+
+    if (transformArg.length) {
+      gdalArgs = gdalArgs.concat(transformArg.split(' '))
+    }
+  }
+
   var error = false
-  var gdal = spawn('gdaltransform', params)
+  var gdal = spawn('gdaltransform', gdalArgs)
   gdal.stdin.setEncoding('utf-8')
 
   gdal.on('error', (err) => {
@@ -135,7 +160,7 @@ module.exports.getMaskAndTransform = function (params, callback) {
         if (err) {
           callback(err)
         } else {
-          this.transform(mask, gcps, callback)
+          this.transform(mask, gcps, params, callback)
         }
       })
     }
