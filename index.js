@@ -1,12 +1,18 @@
 'use strict'
 
-var H = require('highland')
-var request = require('request')
-var JSONStream = require('JSONStream')
-var spawn = require('child_process').spawn
-var XmlStream = require('xml-stream')
+const H = require('highland')
+const request = require('request')
+const JSONStream = require('JSONStream')
+const spawn = require('child_process').spawn
+const XmlStream = require('xml-stream')
 
 module.exports.DEFAULT_MAPWARPER_URL = 'http://maps.nypl.org/'
+
+module.exports.gdalInstalled = function (callback) {
+  const gdal = spawn('gdaltransform', ['--version'])
+  gdal.on('error', callback)
+  gdal.stdout.on('data', (data) => callback(null, String(data)))
+}
 
 module.exports.getMask = function (params, callback) {
   const mapwarperUrl = params.mapwarperUrl || this.DEFAULT_MAPWARPER_URL
@@ -87,15 +93,40 @@ module.exports.getGcps = function (params, callback) {
     })
 }
 
-module.exports.transform = function (mask, gcps, callback) {
-  var params = []
+var transformArgs = {
+  auto: '',
+  p1: '-order 1',
+  p2: '-order 2',
+  p3: '-order 3',
+  tps: '-tps'
+}
+
+module.exports.transform = function (mask, gcps, params, callback) {
+  if (!params) {
+    params = {}
+  }
+
+  var gdalArgs = []
   gcps.forEach((gcp) => {
-    params.push('-gcp')
-    params = params.concat(gcp)
+    gdalArgs.push('-gcp')
+    gdalArgs = gdalArgs.concat(gcp)
   })
 
+  if (params.transform) {
+    var transformArg = transformArgs[params.transform]
+
+    if (transformArg === undefined) {
+      callback(new Error('Transform option is invalid: ' + params.transform))
+      return
+    }
+
+    if (transformArg.length) {
+      gdalArgs = gdalArgs.concat(transformArg.split(' '))
+    }
+  }
+
   var error = false
-  var gdal = spawn('gdaltransform', params)
+  var gdal = spawn('gdaltransform', gdalArgs)
   gdal.stdin.setEncoding('utf-8')
 
   gdal.on('error', (err) => {
@@ -135,7 +166,7 @@ module.exports.getMaskAndTransform = function (params, callback) {
         if (err) {
           callback(err)
         } else {
-          this.transform(mask, gcps, callback)
+          this.transform(mask, gcps, params, callback)
         }
       })
     }
