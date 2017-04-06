@@ -1,12 +1,18 @@
 'use strict'
 
-var H = require('highland')
-var request = require('request')
-var JSONStream = require('JSONStream')
-var spawn = require('child_process').spawn
-var XmlStream = require('xml-stream')
+const H = require('highland')
+const request = require('request')
+const JSONStream = require('JSONStream')
+const spawn = require('child_process').spawn
+const XmlStream = require('xml-stream')
 
 module.exports.DEFAULT_MAPWARPER_URL = 'http://maps.nypl.org/'
+
+module.exports.gdalInstalled = function (callback) {
+  const gdal = spawn('gdaltransform', ['--version'])
+  gdal.on('error', callback)
+  gdal.stdout.on('data', (data) => callback(null, String(data)))
+}
 
 module.exports.getMask = function (params, callback) {
   const mapwarperUrl = params.mapwarperUrl || this.DEFAULT_MAPWARPER_URL
