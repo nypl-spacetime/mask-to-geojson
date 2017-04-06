@@ -131,7 +131,7 @@ module.exports.transform = function (mask, gcps, params, callback) {
 
   gdal.on('error', (err) => {
     error = true
-    callback(new Error('Error spawning gdaltransform - is GDAL installed?'))
+    callback(new Error('Error spawning gdaltransform - is GDAL installed? ' + err.message))
   })
 
   H(gdal.stdout)
