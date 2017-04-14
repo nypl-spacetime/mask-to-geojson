@@ -1,10 +1,13 @@
-'use strict'
-
 const H = require('highland')
-const request = require('request')
+const got = require('got')
 const JSONStream = require('JSONStream')
 const spawn = require('child_process').spawn
 const XmlStream = require('xml-stream')
+
+const GOT_OPTIONS = {
+  timeout: 1000,
+  retries: 5
+}
 
 module.exports.DEFAULT_MAPWARPER_URL = 'http://maps.nypl.org/'
 
@@ -19,10 +22,11 @@ module.exports.getMask = function (params, callback) {
   const mapId = params.mapId
   const url = `${mapwarperUrl}shared/masks/${mapId}.gml`
 
-  var masks = []
-  var error = false
+  let masks = []
+  let error = false
 
-  var gmlStream = request(url)
+  const gmlStream = got.stream(url, GOT_OPTIONS)
+
   gmlStream.on('error', (err) => {
     if (!error) {
       error = true
@@ -30,7 +34,7 @@ module.exports.getMask = function (params, callback) {
     }
   })
 
-  var xml = new XmlStream(gmlStream)
+  const xml = new XmlStream(gmlStream)
 
   xml.on('error', (err) => {
     if (!error) {
@@ -40,11 +44,11 @@ module.exports.getMask = function (params, callback) {
   })
 
   xml.on('endElement: gml:coordinates', (item) => {
-    var maskString = item['$text']
+    const maskString = item['$text']
     if (maskString) {
-      var match = maskString.match(/(-?\d*\.?\d*\s*,\s*-?\d*\.?\d*)/g)
+      const match = maskString.match(/(-?\d*\.?\d*\s*,\s*-?\d*\.?\d*)/g)
       if (match) {
-        var mask = match
+        const mask = match
           .map((c) => c.split(','))
           .map((c) => c.map(parseFloat))
         masks.push(mask)
@@ -59,7 +63,7 @@ module.exports.getMask = function (params, callback) {
       } else {
         masks.sort((a, b) => b.length - a.length)
 
-        var mask = masks[0]
+        const mask = masks[0]
 
         if (mask.length < 4) {
           callback(new Error(`GML mask with less than 4 coordinates encountered: ${mapId} - see ${url}`))
@@ -76,9 +80,8 @@ module.exports.getGcps = function (params, callback) {
   const mapId = params.mapId
   const url = `${mapwarperUrl}warper/maps/${mapId}/gcps.json`
 
-  var gcpStream = request(url, {
-    json: true
-  }).pipe(JSONStream.parse('items.*'))
+  const gcpStream = got.stream(url, GOT_OPTIONS)
+    .pipe(JSONStream.parse('items.*'))
 
   H(gcpStream)
     .errors(callback)
@@ -93,7 +96,7 @@ module.exports.getGcps = function (params, callback) {
     })
 }
 
-var transformArgs = {
+const transformArgs = {
   auto: '',
   p1: '-order 1',
   p2: '-order 2',
@@ -106,14 +109,14 @@ module.exports.transform = function (mask, gcps, params, callback) {
     params = {}
   }
 
-  var gdalArgs = []
+  let gdalArgs = []
   gcps.forEach((gcp) => {
     gdalArgs.push('-gcp')
     gdalArgs = gdalArgs.concat(gcp)
   })
 
   if (params.transform) {
-    var transformArg = transformArgs[params.transform]
+    const transformArg = transformArgs[params.transform]
 
     if (transformArg === undefined) {
       callback(new Error('Transform option is invalid: ' + params.transform))
@@ -125,8 +128,8 @@ module.exports.transform = function (mask, gcps, params, callback) {
     }
   }
 
-  var error = false
-  var gdal = spawn('gdaltransform', gdalArgs)
+  let error = false
+  const gdal = spawn('gdaltransform', gdalArgs)
   gdal.stdin.setEncoding('utf-8')
 
   gdal.on('error', (err) => {
