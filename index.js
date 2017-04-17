@@ -80,18 +80,35 @@ module.exports.getGcps = function (params, callback) {
   const mapId = params.mapId
   const url = `${mapwarperUrl}warper/maps/${mapId}/gcps.json`
 
+  let error = false
+
   const gcpStream = got.stream(url, GOT_OPTIONS)
+
+  gcpStream.on('error', (err) => {
+    if (!error) {
+      error = true
+      callback(new Error(`error reading GCPs from Map Warper API: '${err.message}' - see ${url}`))
+    }
+  })
+
+  const gcpJSONStream = gcpStream
     .pipe(JSONStream.parse('items.*'))
 
-  H(gcpStream)
-    .errors(callback)
+  H(gcpJSONStream)
+    .stopOnError((err) => {
+      if (!error) {
+        callback(err)
+      }
+    })
     .filter((gcp) => Math.abs(gcp.x) > Number.EPSILON && Math.abs(gcp.y) > Number.EPSILON)
     .map((gcp) => [gcp.x, gcp.y, gcp.lat, gcp.lon])
     .toArray((gcps) => {
-      if (gcps.length < 3) {
-        callback(new Error(`Map with less than 3 GCPs encountered: ${mapId} - see ${url}`))
-      } else {
-        callback(null, gcps)
+      if (!error) {
+        if (gcps.length < 3) {
+          callback(new Error(`Map with less than 3 GCPs encountered: ${mapId} - see ${url}`))
+        } else {
+          callback(null, gcps)
+        }
       }
     })
 }
