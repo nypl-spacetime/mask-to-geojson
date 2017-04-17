@@ -5,7 +5,7 @@ const spawn = require('child_process').spawn
 const XmlStream = require('xml-stream')
 
 const GOT_OPTIONS = {
-  timeout: 1000,
+  timeout: 5000,
   retries: 5
 }
 
