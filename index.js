@@ -97,6 +97,7 @@ module.exports.getGcps = function (params, callback) {
   H(gcpJSONStream)
     .stopOnError((err) => {
       if (!error) {
+        error = true
         callback(err)
       }
     })
