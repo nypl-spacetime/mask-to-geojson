@@ -102,7 +102,7 @@ module.exports.getGcps = function (params, callback) {
       }
     })
     .filter((gcp) => Math.abs(gcp.x) > Number.EPSILON && Math.abs(gcp.y) > Number.EPSILON)
-    .map((gcp) => [gcp.x, gcp.y, gcp.lat, gcp.lon])
+    .map((gcp) => [gcp.x, gcp.y, gcp.lat, gcp.lon].map((num) => parseFloat(num)))
     .toArray((gcps) => {
       if (!error) {
         if (gcps.length < 3) {
