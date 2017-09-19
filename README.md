@@ -2,7 +2,7 @@
 
 mask-to-geojson converts Mapwarper GML masks to GeoJSON polygons, using [gdaltransform](http://www.gdal.org/gdaltransform.html). Given a map ID, mask-to-geojson reads the map's mask and ground control points (GCPs) from the Mapwarper API and transforms the mask's pixel coordinates to latitude/longitude coordinates.
 
-__You need to have [GDAL](http://www.gdal.org/) installed for mask-to-geojson to work!)__
+__Important: you need to have [GDAL](http://www.gdal.org/) installed for mask-to-geojson to work!__
 
 ![](images/geojson.png)
 
