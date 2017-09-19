@@ -187,7 +187,13 @@ module.exports.getMaskAndTransform = function (params, callback) {
         if (err) {
           callback(err)
         } else {
-          this.transform(mask, gcps, params, callback)
+          this.transform(mask, gcps, params, (err, geojson) => {
+            if (err) {
+              callback(err)
+            } else {
+              callback(null, geojson, gcps, mask)
+            }
+          })
         }
       })
     }

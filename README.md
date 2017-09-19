@@ -25,11 +25,13 @@ var maskToGeoJSON = require('mask-to-geojson')
 
 maskToGeoJSON.getMaskAndTransform({
   mapId: 27378
-}, (err, geojson) => {
+}, (err, geojson, gcps, mask) => {
   if (err) {
     console.error(err)
   } else {
-    console.log(JSON.stringify(geojson))
+    console.log('Mask:', mask)
+    console.log('GCPs:', gcps)
+    console.log('GeoJSON:', JSON.stringify(geojson))
   }
 })
 ```
